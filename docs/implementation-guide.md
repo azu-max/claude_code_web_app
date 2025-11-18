@@ -203,6 +203,307 @@ refactor: S3クライアントを関数化
 
 ---
 
+## 🔀 PR（プルリクエスト）戦略
+
+### PR作成の基本方針
+
+**小さく、頻繁に、レビューしやすく**
+
+- ✅ 1つのPRは1つの機能または関心事に集中
+- ✅ 変更ファイル数: **5〜10ファイル程度**を目安
+- ✅ レビュー時間: 15〜30分で完了できる規模
+- ✅ 動作確認: PRごとに動作確認可能な状態
+
+### PR単位の例
+
+#### ❌ 悪い例：大きすぎるPR
+
+```
+PR: ファイルアップロード機能の実装
+変更ファイル数: 25ファイル
+
+- 型定義
+- バリデーション
+- S3クライアント
+- API Route
+- コンポーネント（5個）
+- スタイル
+- テスト
+```
+
+**問題点**:
+- レビューに1時間以上かかる
+- バグが見つかった時の影響範囲が大きい
+- マージ後の問題切り分けが困難
+
+---
+
+#### ✅ 良い例：適切に分割されたPR
+
+**PR #1: 型定義とバリデーション**
+```
+変更ファイル数: 3ファイル
+
+src/types/file.ts
+src/lib/validators/file-validator.ts
+src/constants/index.ts
+```
+
+**PR #2: S3クライアント設定**
+```
+変更ファイル数: 4ファイル
+
+src/lib/aws/s3-client.ts
+src/lib/aws/upload.ts
+.env.example
+README.md (環境変数のドキュメント更新)
+```
+
+**PR #3: アップロードAPI実装**
+```
+変更ファイル数: 2ファイル
+
+src/app/api/upload/route.ts
+src/types/api.ts (APIレスポンス型追加)
+```
+
+**PR #4: ファイルアップローダーUI（基本）**
+```
+変更ファイル数: 5ファイル
+
+src/components/ui/Button.tsx
+src/components/features/upload/FileUploader.tsx
+src/hooks/useFileUpload.ts
+src/app/page.tsx (統合)
+src/app/globals.css (必要なスタイル)
+```
+
+**PR #5: ドラッグ&ドロップ機能追加**
+```
+変更ファイル数: 2ファイル
+
+src/components/features/upload/DropZone.tsx
+src/components/features/upload/FileUploader.tsx (統合)
+```
+
+**メリット**:
+- 各PRは15分程度でレビュー可能
+- 問題があれば特定のPRだけrevert
+- 段階的に動作確認できる
+
+---
+
+### PR作成のガイドライン
+
+#### 1. PRの範囲を決める
+
+**1つのPRにまとめる基準**:
+- ✅ 同じ機能/関心事に関連している
+- ✅ お互いに依存関係がある
+- ✅ 単独でテスト・レビューできる
+- ✅ 5〜10ファイル以内
+
+**別PRに分ける基準**:
+- ❌ 異なる機能（アップロードとギャラリー）
+- ❌ 依存関係がない（型定義と後からのUI改善）
+- ❌ 10ファイル以上の変更になる
+
+#### 2. PR作成時のチェックリスト
+
+作成前に確認：
+
+- [ ] 変更ファイル数は5〜10ファイル程度か？
+- [ ] 1つの明確な目的があるか？
+- [ ] PRタイトルで何をしたか明確か？
+- [ ] 動作確認できる状態か？
+- [ ] コミットメッセージは適切か？
+- [ ] コンフリクトはないか？
+
+#### 3. PRタイトル・説明のフォーマット
+
+**タイトル**:
+```
+<type>: <簡潔な説明>
+
+例:
+feat: ファイルアップロード用の型定義とバリデーション実装
+fix: ギャラリー表示のソート順を修正
+```
+
+**説明テンプレート**:
+```markdown
+## 概要
+[何を実装したか簡潔に説明]
+
+## 変更内容
+- [ ] 型定義を追加
+- [ ] バリデーション関数を実装
+- [ ] 定数ファイルを作成
+
+## 動作確認
+- [ ] ビルドエラーなし (`npm run build`)
+- [ ] リントエラーなし (`npm run lint`)
+- [ ] 型エラーなし
+
+## スクリーンショット
+[必要に応じて画面キャプチャを添付]
+
+## 関連PR
+- 次のPR: #X (S3クライアント設定)
+```
+
+---
+
+### PR分割の具体例（機能別）
+
+#### Basic認証実装
+
+**PR #1: Middleware実装**
+- `src/middleware.ts`
+- `.env.example`
+- `README.md`
+
+約3ファイル ✅
+
+---
+
+#### ファイルアップロード機能
+
+**PR #1: 型定義・バリデーション**
+- `src/types/file.ts`
+- `src/lib/validators/file-validator.ts`
+- `src/constants/index.ts`
+
+約3ファイル ✅
+
+**PR #2: S3設定**
+- `src/lib/aws/s3-client.ts`
+- `src/lib/aws/upload.ts`
+- `src/lib/utils/uuid-generator.ts`
+- `.env.example`
+
+約4ファイル ✅
+
+**PR #3: アップロードAPI**
+- `src/app/api/upload/route.ts`
+- `src/types/api.ts`
+
+約2ファイル ✅
+
+**PR #4: UI基本コンポーネント**
+- `src/components/ui/Button.tsx`
+- `src/components/ui/Spinner.tsx`
+- `src/components/ui/Toast.tsx`
+
+約3ファイル ✅
+
+**PR #5: アップローダー実装**
+- `src/components/features/upload/FileUploader.tsx`
+- `src/components/features/upload/ProgressBar.tsx`
+- `src/hooks/useFileUpload.ts`
+- `src/app/page.tsx` (統合)
+
+約4ファイル ✅
+
+**PR #6: ドラッグ&ドロップ**
+- `src/components/features/upload/DropZone.tsx`
+- `src/components/features/upload/FileUploader.tsx` (更新)
+
+約2ファイル ✅
+
+---
+
+#### ギャラリー表示機能
+
+**PR #1: ファイル一覧API**
+- `src/app/api/files/route.ts`
+- `src/lib/aws/list-files.ts`
+- `src/lib/aws/generate-presigned-url.ts`
+
+約3ファイル ✅
+
+**PR #2: ギャラリーコンポーネント**
+- `src/components/features/gallery/Gallery.tsx`
+- `src/components/features/gallery/GalleryGrid.tsx`
+- `src/hooks/useGallery.ts`
+- `src/app/page.tsx` (統合)
+
+約4ファイル ✅
+
+**PR #3: 画像カード**
+- `src/components/features/gallery/ImageCard.tsx`
+- `src/lib/utils/file-size-formatter.ts`
+- `src/lib/utils/date-formatter.ts`
+
+約3ファイル ✅
+
+**PR #4: プレビューモーダル**
+- `src/components/ui/Modal.tsx`
+- `src/components/features/gallery/ImagePreview.tsx`
+
+約2ファイル ✅
+
+---
+
+### PR作成の手順
+
+```bash
+# 1. 新しいブランチを作成
+git checkout -b feat/file-validation
+
+# 2. コード実装（5〜10ファイル程度）
+
+# 3. 動作確認
+
+# 4. コミット
+git add .
+git commit -m "feat: ファイルアップロード用の型定義とバリデーション実装"
+
+# 5. プッシュ
+git push origin feat/file-validation
+
+# 6. GitHubでPR作成
+# タイトル、説明、レビュワーを設定
+
+# 7. レビュー対応
+
+# 8. マージ
+
+# 9. 次のPRのためにmainブランチを更新
+git checkout main
+git pull origin main
+```
+
+---
+
+### PRマージ後のクリーンアップ
+
+```bash
+# ローカルブランチを削除
+git branch -d feat/file-validation
+
+# リモートブランチを削除（GitHubで自動削除設定推奨）
+git push origin --delete feat/file-validation
+```
+
+---
+
+### よくある質問
+
+**Q: 10ファイルを超えそうな場合はどうする？**
+A: 機能を論理的に分割してください。例えば、「型定義」と「実装」を別PRにする。
+
+**Q: 1ファイルしか変更がない場合は？**
+A: 問題ありません。小さいPRは歓迎です。
+
+**Q: リファクタリングはどう扱う？**
+A: 機能追加とは別PRにしてください。`refactor:` プレフィックスを使用。
+
+**Q: ドキュメント更新は？**
+A: 関連する実装PRに含めるか、別の`docs:` PRにするか、変更の大きさで判断。
+
+---
+
 ## ✅ コードレビューチェックリスト
 
 ### セルフレビュー（コミット前）

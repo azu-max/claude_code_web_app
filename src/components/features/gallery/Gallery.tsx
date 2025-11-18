@@ -4,16 +4,22 @@ import { useState } from 'react';
 import { FileItem } from '@/types/file';
 import { useGallery } from '@/hooks/useGallery';
 import { GalleryGrid } from './GalleryGrid';
+import { ImagePreview } from './ImagePreview';
 import { Spinner } from '@/components/ui/Spinner';
 
 export function Gallery() {
   const { files, isLoading, error, refetch } = useGallery();
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const handleImageClick = (file: FileItem) => {
     setSelectedFile(file);
-    // TODO: Open preview modal (Phase 2)
-    console.log('Selected file:', file);
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setSelectedFile(null);
   };
 
   if (isLoading) {
@@ -59,6 +65,12 @@ export function Gallery() {
       </div>
 
       <GalleryGrid files={files} onImageClick={handleImageClick} />
+
+      <ImagePreview
+        file={selectedFile}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+      />
     </div>
   );
 }

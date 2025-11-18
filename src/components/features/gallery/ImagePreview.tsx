@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import Image from 'next/image';
 import { FileItem } from '@/types/file';
 import { formatFileSize } from '@/lib/validators/file-validator';
+import { ShareButton } from '@/components/features/share/ShareButton';
 
 interface ImagePreviewProps {
   file: FileItem | null;
@@ -106,12 +107,7 @@ export function ImagePreview({ file, isOpen, onClose }: ImagePreviewProps) {
           <div className="text-sm text-gray-600">
             {file.mimeType}
           </div>
-          <div className="flex gap-2">
-            {/* TODO: ShareButtonコンポーネントをここに追加 */}
-            <button className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-              共有リンク作成
-            </button>
-          </div>
+          <ShareButton fileId={file.s3Key} fileName={file.fileName} />
         </div>
       </div>
     </div>

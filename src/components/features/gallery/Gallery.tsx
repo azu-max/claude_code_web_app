@@ -1,14 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FileItem } from '@/types/file';
 import { useGallery } from '@/hooks/useGallery';
 import { GalleryGrid } from './GalleryGrid';
 import { ImagePreview } from './ImagePreview';
 import { Spinner } from '@/components/ui/Spinner';
 
-export function Gallery() {
+interface GalleryProps {
+  refreshTrigger?: number;
+}
+
+export function Gallery({ refreshTrigger }: GalleryProps) {
   const { files, isLoading, error, refetch } = useGallery();
+
+  // refreshTriggerが変更されたらギャラリーを更新
+  useEffect(() => {
+    if (refreshTrigger !== undefined && refreshTrigger > 0) {
+      refetch();
+    }
+  }, [refreshTrigger, refetch]);
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 

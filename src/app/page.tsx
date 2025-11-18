@@ -1,5 +1,4 @@
-import { FileUploader } from '@/components/features/upload/FileUploader';
-import { Gallery } from '@/components/features/gallery/Gallery';
+import { MainContent } from '@/components/layouts/MainContent';
 
 export default function Home() {
   return (
@@ -12,13 +11,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mb-12">
-          <FileUploader />
-        </div>
-
-        <div className="mb-12">
-          <Gallery />
-        </div>
+        <MainContent />
       </div>
     </main>
   );

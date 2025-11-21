@@ -4,7 +4,15 @@
 
 ## 📌 プロジェクト概要
 
-**SnapShare**は、Next.js + TypeScript + AWS S3を使用したモダンなファイル共有アプリケーションです。シンプルで直感的なUIで、画像のアップロード、ギャラリー表示、共有リンクの生成が可能です。
+**SnapShare**は、Next.js + TypeScript + AWS S3 + Cloudflare Workersを使用したモダンなファイル共有アプリケーションです。シンプルで直感的なUIで、画像のアップロード、ギャラリー表示、共有リンクの生成が可能です。
+
+### 🏗️ モノレポ構成
+
+このプロジェクトはモノレポ（Monorepo）構成で、複数のアプリケーションとパッケージが1つのリポジトリで管理されています：
+
+- **`apps/web`**: Next.jsのメインアプリケーション（ファイル共有UI）
+- **`apps/worker`**: Cloudflare Workers（URL短縮サービス）
+- **`packages/shared`**: 共通の型定義とユーティリティ
 
 ### 主な機能（フェーズ1）
 
@@ -23,12 +31,23 @@
 
 ## 🛠 技術スタック
 
+### Webアプリ（apps/web）
 - **フロントエンド**: Next.js 14 (App Router), React 18, TypeScript
 - **スタイリング**: Tailwind CSS
 - **バックエンド**: Next.js API Routes
 - **ストレージ**: AWS S3
 - **デプロイ**: Vercel
 - **認証**: Basic認証（Next.js Middleware）
+
+### URL短縮サービス（apps/worker）
+- **Runtime**: Cloudflare Workers
+- **Language**: TypeScript
+- **Storage**: Cloudflare KV
+- **Build Tool**: Wrangler
+
+### 共通パッケージ（packages/shared）
+- TypeScript型定義
+- 共通ユーティリティ関数
 
 ## 📁 ドキュメント
 
@@ -58,24 +77,23 @@
 - Node.js 18以上
 - npm または yarn
 - AWS アカウント（S3バケット作成済み）
+- Cloudflareアカウント（URL短縮機能を使う場合）
 
 ### セットアップ手順
 
 ```bash
-# 1. プロジェクト作成（まだ作成していない場合）
-npx create-next-app@latest snapshare --typescript --tailwind --app --src-dir
-
-# 2. ディレクトリに移動
+# 1. リポジトリをクローン
+git clone <repository-url>
 cd snapshare
 
-# 3. 必要なパッケージをインストール
-npm install @aws-sdk/client-s3 @aws-sdk/s3-request-presigner uuid
-npm install -D @types/uuid
+# 2. 依存関係をインストール（モノレポ全体）
+npm install
 
-# 4. 環境変数ファイルを作成
-cp .env.example .env.local
+# 3. 環境変数ファイルを作成
+# Webアプリ用
+cp apps/web/.env.example apps/web/.env.local
 
-# 5. .env.local を編集して以下を設定
+# 4. apps/web/.env.local を編集して以下を設定
 # AWS_REGION=ap-northeast-1
 # AWS_ACCESS_KEY_ID=your_access_key
 # AWS_SECRET_ACCESS_KEY=your_secret_key
@@ -83,11 +101,18 @@ cp .env.example .env.local
 # BASIC_AUTH_USER=admin
 # BASIC_AUTH_PASSWORD=your_password
 
-# 6. 開発サーバー起動
+# 5. 開発サーバー起動
+# Webアプリのみ起動
+npm run dev:web
+
+# または両方同時に起動
 npm run dev
 ```
 
-ブラウザで http://localhost:3000 にアクセス
+### アクセス
+
+- **Webアプリ**: http://localhost:3000
+- **Worker**: http://localhost:8787 (dev:workerを実行した場合)
 
 ## 📋 開発フロー
 
@@ -111,48 +136,67 @@ npm run dev
 ### 開発コマンド
 
 ```bash
-# 開発サーバー起動
+# 全プロジェクトの開発サーバー起動
 npm run dev
 
+# 個別起動
+npm run dev:web        # Webアプリのみ
+npm run dev:worker     # Workerのみ
+
 # ビルド
-npm run build
-
-# 本番環境で起動
-npm start
-
-# リント
-npm run lint
+npm run build          # 全プロジェクト
+npm run build:web      # Webアプリのみ
+npm run build:worker   # Workerデプロイ
 
 # 型チェック
-npm run type-check
+npm run type-check     # 全プロジェクト
+
+# リント
+npm run lint           # Webアプリのみ
 ```
+
+詳細は各プロジェクトのREADMEを参照：
+- [Webアプリ README](apps/web/README.md)（※要作成）
+- [Worker README](apps/worker/README.md)
 
 ## 🏗 ディレクトリ構造
 
 ```
-snapshare/
-├── docs/                  # ドキュメント
-├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── api/          # API Routes
-│   │   ├── layout.tsx
-│   │   └── page.tsx
-│   ├── components/       # Reactコンポーネント
-│   │   ├── ui/           # 汎用UIコンポーネント
-│   │   └── features/     # 機能別コンポーネント
-│   ├── lib/              # ライブラリ・ユーティリティ
-│   ├── types/            # 型定義
-│   ├── hooks/            # カスタムフック
-│   └── middleware.ts     # Basic認証
-├── public/               # 静的ファイル
-└── README.md             # このファイル
+snapshare/ (モノレポルート)
+├── apps/
+│   ├── web/                    # Next.jsアプリケーション
+│   │   ├── src/
+│   │   │   ├── app/            # Next.js App Router
+│   │   │   ├── components/     # Reactコンポーネント
+│   │   │   ├── lib/            # ユーティリティ
+│   │   │   └── types/          # 型定義
+│   │   ├── package.json
+│   │   └── next.config.js
+│   │
+│   └── worker/                 # Cloudflare Workers
+│       ├── src/
+│       │   └── index.ts        # Workerエントリーポイント
+│       ├── package.json
+│       ├── wrangler.toml       # Cloudflare設定
+│       └── README.md
+│
+├── packages/
+│   └── shared/                 # 共通パッケージ
+│       ├── src/
+│       │   ├── types.ts        # 共通型定義
+│       │   └── index.ts
+│       └── package.json
+│
+├── docs/                       # ドキュメント
+├── package.json                # モノレポルート設定
+└── README.md                   # このファイル
 ```
 
 詳細は [システム設計書](docs/system-design.md) を参照してください。
 
 ## 🔐 環境変数
 
-`.env.local`に以下の環境変数を設定してください：
+### Webアプリ（apps/web/.env.local）
 
 ```bash
 # AWS設定
@@ -167,6 +211,19 @@ BASIC_AUTH_PASSWORD=your_secure_password
 
 # アプリケーションURL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Worker URL（URL短縮機能を使う場合）
+NEXT_PUBLIC_WORKER_URL=https://your-worker.workers.dev
+```
+
+### Cloudflare Worker（apps/worker/wrangler.toml）
+
+KVネームスペースのIDを設定（デプロイ時のみ必要）:
+
+```toml
+[[kv_namespaces]]
+binding = "URL_SHORTENER"
+id = "your_kv_namespace_id"
 ```
 
 **重要**: `.env.local`は絶対にGitにコミットしないでください！

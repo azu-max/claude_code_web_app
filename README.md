@@ -61,6 +61,7 @@
 | **データ構造定義** | S3構造、型定義、API仕様 | [docs/data-structure.md](docs/data-structure.md) |
 | **シーケンス図** | 主要機能のフロー図（Mermaid形式） | [docs/sequence-diagrams.md](docs/sequence-diagrams.md) |
 | **システム設計書** | アーキテクチャ、ディレクトリ構成、API設計 | [docs/system-design.md](docs/system-design.md) |
+| **Worker設計書** | Cloudflare Workersのアーキテクチャと設計 | [docs/worker-design.md](docs/worker-design.md) |
 
 ### 実装ドキュメント
 
@@ -69,6 +70,8 @@
 | **実装ガイド** | 開発フロー、テスト方法、レビュー基準 | [docs/implementation-guide.md](docs/implementation-guide.md) |
 | **コーディング規約** | TypeScript、React、Tailwindの規約 | [docs/coding-standards.md](docs/coding-standards.md) |
 | **デザインガイド** | カラー、タイポグラフィ、コンポーネント | [docs/design-guide.md](docs/design-guide.md) |
+| **モノレポ構成ガイド** | モノレポの使い方と開発フロー | [docs/monorepo-setup.md](docs/monorepo-setup.md) |
+| **Worker実装ガイド** | Cloudflare Workersの実装手順 | [docs/worker-implementation-guide.md](docs/worker-implementation-guide.md) |
 
 ## 🚀 クイックスタート
 

@@ -1,32 +1,22 @@
 {
-  "name": "snapshare",
+  "name": "snapshare-monorepo",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "type-check": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.933.0",
-    "@aws-sdk/s3-request-presigner": "^3.933.0",
-    "next": "14.2.18",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "uuid": "^13.0.0"
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:worker": "npm run dev --workspace=apps/worker",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:worker": "npm run deploy --workspace=apps/worker",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "lint": "npm run lint --workspace=apps/web"
   },
   "devDependencies": {
-    "@types/node": "^20.17.6",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@types/uuid": "^10.0.0",
-    "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "14.2.18",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3"
   }
 }
